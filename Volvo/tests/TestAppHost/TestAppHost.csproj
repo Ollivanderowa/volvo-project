@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" />
-    <PackageReference Include="Aspire.Hosting.Azure.Sql" />
   </ItemGroup>
 
   <ItemGroup>

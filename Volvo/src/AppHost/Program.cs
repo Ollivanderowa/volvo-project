@@ -1,18 +1,16 @@
 using Volvo.Shared;
+using Microsoft.Extensions.Configuration;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddAzureContainerAppEnvironment("aca-env");
+var connectionString = builder.Configuration.GetConnectionString(Services.Database)
+    ?? throw new InvalidOperationException(
+        $"Connection string '{Services.Database}' not found. Set the ConnectionStrings__VolvoDb environment variable.");
 
-var databaseServer = builder
-    .AddAzureSqlServer(Services.DatabaseServer)
-    .RunAsContainer(container => 
-        container.WithLifetime(ContainerLifetime.Persistent))
-    .AddDatabase(Services.Database);
+var database = builder.AddConnectionString(Services.Database, connectionString);
 
 var web = builder.AddProject<Projects.Web>(Services.WebApi)
-    .WithReference(databaseServer)
-    .WaitFor(databaseServer)
+    .WithReference(database)
     .WithExternalHttpEndpoints()
     .WithAspNetCoreEnvironment()
     .WithUrlForEndpoint("http", url =>

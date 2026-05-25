@@ -35,9 +35,6 @@ public class FunctionalTestSetup
             .StartAsync(cancellationToken)
             .WaitAsync(cancellationToken);
 
-        await _app.ResourceNotifications.WaitForResourceHealthyAsync(
-            Services.Database, cancellationToken);
-
         var connectionString = (await _app.GetConnectionStringAsync(Services.Database))!;
 
         _factory = new WebApiFactory(connectionString);
