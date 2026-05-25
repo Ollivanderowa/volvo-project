@@ -2,10 +2,32 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
-const MIN_PASSWORD_LENGTH = 6;
+const PASSWORD_HINT =
+  'At least 6 characters with uppercase, lowercase, a digit, and a special character (e.g. Test123!).';
 
 function validateEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function validatePassword(value) {
+  return value.length >= 6
+    && /[a-z]/.test(value)
+    && /[A-Z]/.test(value)
+    && /\d/.test(value)
+    && /[^a-zA-Z0-9]/.test(value);
+}
+
+function formatRegisterError(err) {
+  if (err?.errors) {
+    return Object.values(err.errors).flat().join(' ');
+  }
+  if (typeof err?.detail === 'string' && err.detail) {
+    return err.detail;
+  }
+  if (typeof err?.title === 'string' && err.title) {
+    return err.title;
+  }
+  return 'Registration failed. Please try again.';
 }
 
 export function RegisterPage() {
@@ -18,7 +40,7 @@ export function RegisterPage() {
   const navigate = useNavigate();
 
   const emailValid = validateEmail(email);
-  const passwordValid = password.length >= MIN_PASSWORD_LENGTH;
+  const passwordValid = validatePassword(password);
 
   const emailInvalid = emailTouched ? !emailValid : undefined;
   const passwordInvalid = passwordTouched ? !passwordValid : undefined;
@@ -32,8 +54,8 @@ export function RegisterPage() {
     try {
       await register(email, password);
       navigate('/login');
-    } catch {
-      setError('Registration failed. Please try again.');
+    } catch (err) {
+      setError(formatRegisterError(err));
     }
   };
 
@@ -59,11 +81,7 @@ export function RegisterPage() {
           onBlur={() => setPasswordTouched(true)}
           aria-invalid={passwordInvalid}
           aria-describedby="password-helper" />
-        <small id="password-helper">
-          {passwordTouched && !passwordValid
-            ? `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`
-            : ''}
-        </small>
+        <small id="password-helper">{PASSWORD_HINT}</small>
         <button type="submit">Register</button>
         <p style={{ marginTop: '1rem' }}>Already have an account? <Link to="/login">Log in</Link></p>
       </form>
