@@ -41,10 +41,10 @@
     <PackageVersion Include="Aspire.Hosting.Azure.PostgreSQL" Version="13.2.2" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
     <!--#endif-->
-    <!--#if (UseSqlServer)-->
     <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.2.2" />
     <PackageVersion Include="Aspire.Hosting.Azure.Sql" Version="13.2.2" />
-    <!--#endif-->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.1" />
     <!--#if (UseSqlite)-->
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.5" />
     <PackageVersion Include="CommunityToolkit.Aspire.Hosting.SQLite" Version="13.1.1" />

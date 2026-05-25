@@ -1,30 +1,16 @@
 using CleanArchitecture.Shared;
+using Microsoft.Extensions.Configuration;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddAzureContainerAppEnvironment("aca-env");
+var connectionString = builder.Configuration.GetConnectionString(Services.Database)
+    ?? throw new InvalidOperationException(
+        $"Connection string '{Services.Database}' not found. Set the ConnectionStrings__CleanArchitectureDb environment variable.");
 
-#if (UsePostgreSQL)
-var databaseServer = builder
-    .AddAzurePostgresFlexibleServer(Services.DatabaseServer)
-    .WithPasswordAuthentication()
-    .RunAsContainer(container => 
-        container.WithLifetime(ContainerLifetime.Persistent))
-    .AddDatabase(Services.Database);
-#elif (UseSqlServer)
-var databaseServer = builder
-    .AddAzureSqlServer(Services.DatabaseServer)
-    .RunAsContainer(container => 
-        container.WithLifetime(ContainerLifetime.Persistent))
-    .AddDatabase(Services.Database);
-#else
-var databaseServer = builder
-    .AddSqlite(Services.Database);
-#endif
+var database = builder.AddConnectionString(Services.Database, connectionString);
 
 var web = builder.AddProject<Projects.Web>(Services.WebApi)
-    .WithReference(databaseServer)
-    .WaitFor(databaseServer)
+    .WithReference(database)
     .WithExternalHttpEndpoints()
     .WithAspNetCoreEnvironment()
     .WithUrlForEndpoint("http", url =>
